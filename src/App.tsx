@@ -5,7 +5,6 @@ import Layout from './pages/Layout';
 import { ipcRenderer } from 'electron';
 import store from './store';
 import swal from 'sweetalert';
-import * as styles from './styles/home.css';
 import SingleTest from './pages/SingleTest';
 
 const CypressValidation = (props) => {
@@ -25,21 +24,33 @@ const CypressValidation = (props) => {
 
 const Hello = () => {
   const [cypress, setCypress] = useState(store.get('cypressState'))
+  const [loading, setLoading] = useState(false)
 
   ipcRenderer.on('cypress', (_, payload) => {
     setCypress(payload);
   })
 
+  ipcRenderer.on('cypress-installed', (_, payload) => {
+    setLoading(false)
+    if(payload) {
+      store.set('cypressState', false)
+      setCypress(false)
+    }
+  })
+
   const handleInstall = () => {
+    setLoading(true)
     ipcRenderer.send(cypress.key)
   }
 
   const testCreateSingleTest = () => {
+    setLoading(true)
+    setTimeout(() => setLoading(false), 5000)
     ipcRenderer.send('test')
   }
 
   return (
-    <Layout>
+    <Layout loading={loading}>
       <CypressValidation cypressRequire={!!cypress} handleInstall={handleInstall}/>
 
       <button onClick={testCreateSingleTest}>Test</button>

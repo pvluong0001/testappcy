@@ -151,26 +151,25 @@ ipcMain.on('check-requirements', () => {
         switch (selectPkg) {
           case 'yarn':
             exec('yarn global add cypress', (err) => {
-              console.log(1, '++++');
               if(err) {
                 createBindingEvent('notification', null, {
                   message: 'Cannot automatic install. Try manual install `yarn global add cypress`',
                   type: 'error'
                 });
-                return;
+                createBindingEvent('cypress-installed', null, false)
+              } else {
+                createBindingEvent('notification', null, {
+                  message: 'Install success',
+                  type: 'success'
+                });
+                createBindingEvent('cypress-installed', null, true)
               }
-
-              createBindingEvent('notification', null, {
-                message: 'Install success',
-                type: 'success'
-              });
             })
-            return;
+            break;
           case 'npm':
-            return;
+            createBindingEvent('cypress-installed', null, false)
+            break;
         }
-
-
       }, 'Cypress is missing on your system!');
       return;
     }
